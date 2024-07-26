@@ -12,7 +12,7 @@ var App = function($el){
   );
 
   if (this.dob) {
-    this.renderAgeLoop();
+    this.renderUpdateLoop();
   } else {
     this.renderChoose();
   }
@@ -36,34 +36,63 @@ App.fn.submit = function(e){
   e.preventDefault();
 
   var input = this.$$('input')[0];
-  if ( !input.valueAsDate ) return;
+  if (!input.valueAsDate) return;
 
   this.dob = input.valueAsDate;
   this.save();
-  this.renderAgeLoop();
+  this.renderUpdateLoop();
 };
 
 App.fn.renderChoose = function(){
   this.html(this.view('dob')());
 };
 
-App.fn.renderAgeLoop = function(){
-  this.interval = setInterval(this.renderAge.bind(this), 100);
+App.fn.renderUpdateLoop = function(){
+  this.updateInterval = setInterval(this.renderUpdate.bind(this), 100);
 };
 
-App.fn.renderAge = function(){
-  var now       = new Date
-  var duration  = now - this.dob;
-  var years     = duration / 31556900000;
+App.fn.renderUpdate = function(){
+  var now = new Date();
+  var duration = now - this.dob;
+  var years = duration / 31556900000;
 
-  var majorMinor = years.toFixed(9).toString().split('.');
+  var majorMinorAge = years.toFixed(9).toString().split('.');
+
+  var yearCompletion = this.getYearCompletion(now);
+  var majorMinorYear = yearCompletion.toFixed(9).toString().split('.');
+
+  var wakingHoursLeft = this.getWakingHoursLeft(now);
+  var majorMinorWakingHours = wakingHoursLeft.toFixed(4).toString().split('.');
 
   requestAnimationFrame(function(){
-    this.html(this.view('age')({
-      year:         majorMinor[0],
-      milliseconds: majorMinor[1]
+    this.html(this.view('main')({
+      year: majorMinorAge[0],
+      milliseconds: majorMinorAge[1],
+      yearCompletionMajor: majorMinorYear[0],
+      yearCompletionMinor: majorMinorYear[1],
+      wakingHoursMajor: majorMinorWakingHours[0],
+      wakingHoursMinor: majorMinorWakingHours[1]
     }));
   }.bind(this));
+};
+
+App.fn.getYearCompletion = function(now){
+  var start = new Date(now.getFullYear(), 0, 1);
+  var end = new Date(now.getFullYear() + 1, 0, 1);
+  var yearDuration = end - start;
+  var elapsed = now - start;
+  return (elapsed / yearDuration) * 100;
+};
+
+App.fn.getWakingHoursLeft = function(now){
+  var end = new Date(now.getFullYear() + 1, 0, 1);
+  var hoursPerDay = 24;
+  var averageSleepHours = 6.75; // 6 hours and 45 minutes
+  var wakingHoursPerDay = hoursPerDay - averageSleepHours;
+  var millisecondsLeft = end - now;
+  var hoursLeft = millisecondsLeft / 36e5; // Convert milliseconds to hours
+  var wakingDaysLeft = hoursLeft / hoursPerDay;
+  return wakingDaysLeft * wakingHoursPerDay;
 };
 
 App.fn.$$ = function(sel){
@@ -79,6 +108,6 @@ App.fn.view = function(name){
   return Handlebars.compile($el.innerHTML);
 };
 
-window.app = new App($('app'))
+window.app = new App($('app'));
 
 })();
