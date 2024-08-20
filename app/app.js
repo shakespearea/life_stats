@@ -6,6 +6,7 @@ var $$ = document.querySelectorAll.bind(document);
 var App = function($el){
   this.$el = $el;
   this.load();
+  this.setRandomBackground();
 
   this.$el.addEventListener(
     'submit', this.submit.bind(this)
@@ -109,6 +110,11 @@ App.fn.getChristmasCountdown = function(now){
   var millisecondsLeft = christmas - now;
   var daysLeft = millisecondsLeft / 86400000; // Convert milliseconds to days
   return daysLeft;
+};
+
+App.fn.setRandomBackground = function(){
+  var randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+  document.body.style.backgroundColor = randomColor;
 };
 
 App.fn.$$ = function(sel){
