@@ -64,6 +64,9 @@ App.fn.renderUpdate = function(){
   var wakingHoursLeft = this.getWakingHoursLeft(now);
   var majorMinorWakingHours = wakingHoursLeft.toFixed(4).toString().split('.');
 
+  var christmasCountdown = this.getChristmasCountdown(now);
+  var majorMinorChristmas = christmasCountdown.toFixed(6).toString().split('.');
+
   requestAnimationFrame(function(){
     this.html(this.view('main')({
       year: majorMinorAge[0],
@@ -71,7 +74,9 @@ App.fn.renderUpdate = function(){
       yearCompletionMajor: majorMinorYear[0],
       yearCompletionMinor: majorMinorYear[1],
       wakingHoursMajor: majorMinorWakingHours[0],
-      wakingHoursMinor: majorMinorWakingHours[1]
+      wakingHoursMinor: majorMinorWakingHours[1],
+      christmasMajor: majorMinorChristmas[0],
+      christmasMinor: majorMinorChristmas[1]
     }));
   }.bind(this));
 };
@@ -93,6 +98,17 @@ App.fn.getWakingHoursLeft = function(now){
   var hoursLeft = millisecondsLeft / 36e5; // Convert milliseconds to hours
   var wakingDaysLeft = hoursLeft / hoursPerDay;
   return wakingDaysLeft * wakingHoursPerDay;
+};
+
+App.fn.getChristmasCountdown = function(now){
+  var year = now.getFullYear();
+  var christmas = new Date(year, 11, 25); // 25th December
+  if (now > christmas) {
+    christmas.setFullYear(year + 1);
+  }
+  var millisecondsLeft = christmas - now;
+  var daysLeft = millisecondsLeft / 86400000; // Convert milliseconds to days
+  return daysLeft;
 };
 
 App.fn.$$ = function(sel){
