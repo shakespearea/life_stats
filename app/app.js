@@ -7,6 +7,7 @@ var App = function($el){
   this.$el = $el;
   this.load();
   this.setRandomBackground();
+  this.setRandomCatGif();
 
   this.$el.addEventListener(
     'submit', this.submit.bind(this)
@@ -115,6 +116,26 @@ App.fn.getChristmasCountdown = function(now){
 App.fn.setRandomBackground = function(){
   var randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
   document.body.style.backgroundColor = randomColor;
+};
+
+App.fn.setRandomCatGif = function(){
+  fetch('https://api.thecatapi.com/v1/images/search?mime_types=gif')
+    .then(response => response.json())
+    .then(data => {
+      var catGifUrl = data[0].url;
+      var img = document.createElement('img');
+      img.src = catGifUrl;
+      img.alt = 'Random Cat Gif';
+
+      // Wait for the image to load to get its actual dimensions
+      img.onload = function() {
+        var catContainer = document.getElementById('cat-container');
+        catContainer.style.width = img.width*0.75 + 'px';
+        catContainer.style.height = img.height*0.75 + 'px';
+        catContainer.innerHTML = '';  // Clear any existing image
+        catContainer.appendChild(img);
+      };
+    });
 };
 
 App.fn.$$ = function(sel){
